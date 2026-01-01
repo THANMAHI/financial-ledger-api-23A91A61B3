@@ -4,9 +4,9 @@ services:
   db:
     image: postgres:15
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: ledger_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_secure_password
+      POSTGRES_DB: financial_ledger
     ports:
       - "5432:5432"
     volumes:
@@ -17,10 +17,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - PORT=3000
+      - DB_USER=postgres
+      - DB_PASSWORD=your_secure_password
+      - DB_NAME=financial_ledger
       - DB_HOST=db
-      - DB_USER=user
-      - DB_PASSWORD=password
-      - DB_NAME=ledger_db
     depends_on:
       - db
