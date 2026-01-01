@@ -1,0 +1,31 @@
+const pool = require('../db');
+
+const createAccount = async (id, userName, type, currency) => {
+    const query = 'INSERT INTO accounts (id, user_name, account_type, currency) VALUES ($1, $2, $3, $4) RETURNING *';
+    const values = [id, userName, type, currency];
+    const res = await pool.query(query, values);
+    return res.rows[0];
+};
+
+const getAccountWithBalance = async (id) => {
+    // 1. Get account identity
+    const accountRes = await pool.query('SELECT * FROM accounts WHERE id = $1', [id]);
+    if (accountRes.rows.length === 0) return null;
+
+    // 2. Calculate balance on-demand (SUM of all ledger entries)
+    const balanceRes = await pool.query(
+      'SELECT COALESCE(SUM(amount), 0) as balance FROM ledger_entries WHERE account_id = $1',
+      [id]
+    );
+
+    const account = accountRes.rows[0];
+    account.balance = parseFloat(balanceRes.rows[0].balance);
+    return account;
+};
+const getLedger = async (accountId) => {
+    const query = 'SELECT * FROM ledger_entries WHERE account_id = $1 ORDER BY created_at DESC';
+    const res = await pool.query(query, [accountId]);
+    return res.rows;
+};
+
+module.exports = { createAccount, getAccountWithBalance, getLedger };

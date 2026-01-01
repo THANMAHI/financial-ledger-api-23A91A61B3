@@ -1,0 +1,89 @@
+{
+	"info": {
+		"name": "Financial Ledger API - Final Submission Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Create Alice Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_name\": \"Alice\",\n    \"account_type\": \"checking\",\n    \"currency\": \"USD\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": { "host": ["localhost"], "port": "3000", "path": ["accounts"] }
+			}
+		},
+		{
+			"name": "2. Create Bob Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_name\": \"Bob\",\n    \"account_type\": \"savings\",\n    \"currency\": \"USD\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": { "host": ["localhost"], "port": "3000", "path": ["accounts"] }
+			}
+		},
+		{
+			"name": "3. Deposit to Alice (Initial Funds)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account_id\": \"{{alice_id}}\",\n    \"amount\": 1000,\n    \"description\": \"Opening Deposit\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": { "host": ["localhost"], "port": "3000", "path": ["deposits"] }
+			}
+		},
+		{
+			"name": "4. Successful Transfer (Alice to Bob)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from_account_id\": \"{{alice_id}}\",\n    \"to_account_id\": \"{{bob_id}}\",\n    \"amount\": 400,\n    \"description\": \"Rent Payment\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": { "host": ["localhost"], "port": "3000", "path": ["transfers"] }
+			}
+		},
+		{
+			"name": "5. Verify Balance (Calculated on-demand)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": { "host": ["localhost"], "port": "3000", "path": ["accounts", "{{alice_id}}"] }
+			}
+		},
+		{
+			"name": "6. Test Failure (Insufficient Funds/ACID Rollback)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from_account_id\": \"{{alice_id}}\",\n    \"to_account_id\": \"{{bob_id}}\",\n    \"amount\": 999999,\n    \"description\": \"Fraudulent Large Transfer\"\n}",
+					"options": { "raw": { "language": "json" } }
+				},
+				"url": { "host": ["localhost"], "port": "3000", "path": ["transfers"] }
+			}
+		},
+		{
+			"name": "7. View Audit Ledger (Immutability Check)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": { "host": ["localhost"], "port": "3000", "path": ["accounts", "{{alice_id}}", "ledger"] }
+			}
+		}
+	]
+}
